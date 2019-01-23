@@ -1,9 +1,28 @@
 <html>
-   <body onload='main()'>
-       <canvas id='dawin-webgl' width=800 height=800>
-         Utilisez un navigateur compatible avec WebGL
-       </canvas>
-       <script src='gl-matrix-min.js'></script>
-       <script src='tp3.js'></script>
-   </body>
+  <head>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  </head>
+  <body onload='main()'>
+    <div class="row">
+        <div class="col s8">   
+          <canvas id='dawin-webgl' width=800 height=800>
+            Utilisez un navigateur compatible avec WebGL
+          </canvas>
+        </div>
+        <div class="col s4">
+          <div class="row">Pannel slides</div>
+          <p class="range-field">
+              <input type="range" id="slider" min="0" max="100" />
+              <input type="range" id="sliderTest" min="-3.14" max="3.14" step="0.01"/>
+          </p>
+        </div>
+      </div>
+    
+    <script src='gl-matrix-min.js'></script>
+    <script src='tp3.js'></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+          
+  </body>
 </html>	

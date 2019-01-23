@@ -22,6 +22,7 @@ let buffer, pos, size, color, bufferColor, perspective, rotation, translation;
 let pMatrix = mat4.create();
 let tMatrix = mat4.identity(mat4.create());
 let rMatrix = mat4.identity(mat4.create());
+let currentPos = 0.00;
 
 
 
@@ -33,7 +34,10 @@ function initContext() {
         return;
     }
     gl.clearColor(0.2, 0.2, 0.2, 1.0);
-    mat4.perspective(pMatrix, 1.5, 400 / 300, 0.1, 100.0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.frontFace(gl.CCW);
+    gl.cullFace(gl.BACK);
+    mat4.perspective(pMatrix, 75 * Math.PI / 180, 800/800, 0.1, 100.0);
 }
 
 //Initialisation des shaders et du program
@@ -42,48 +46,48 @@ function initShaders() {
     let bot = 0.5;
     let left = -0.5;
     let right = 0.5;
-    let front = 0;
-    let back = -1;
+    let front = 0.5;
+    let back = -0.5;
                        //X    Y   Z
     mousePositions = [ //TRIANGLE 1 partie arriere haut gauche
-                        top, left, back,   //haut gauche devant
-                        bot, left, back,  //bas gauche devant
-                        top, right, back,    //haut droite devant
+                        top, left, back,    //haut gauche derriere
+                        bot, left, back,    //bas gauche derriere
+                        top, right, back,   //haut droite derriere
 
                         //TRIANGLE 2 partie arriere bas droite
-                        bot, right, back,   //bas droite devant
-                        top, right, back,    //haut droite devant
-                        bot, left, back,  //bas gauche devant
+                        bot, right, back,   //bas droite derriere
+                        bot, left, back,    //bas gauche derriere
+                        top, right, back,   //haut droite derriere
 
                         //TRIANGLE 3 partie droite haut
-                        bot, right, front,   //bas droite devant
-                        top, right, front,    //haut droite devant
+                        bot, right, front,  //bas droite devant
+                        top, right, front,  //haut droite devant
                         top, right, back,   //haut droite derriere
 
                         //TRIANGLE 4 partie droite bas
-                        bot, right, front,   //bas droite devant
+                        bot, right, front,  //bas droite devant
                         top, right, back,   //haut droite derriere
-                        bot, right, back,  //bas droite devant
+                        bot, right, back,   //bas droite derriere
 
                         //TRIANGLE 5 partie gauche bas
-                        bot, left, front,   //haut gauche devant
+                        top, left, front,   //haut gauche devant
                         bot, left, front,  //bas gauche devant
                         top, left, back,   //haut gauche derriere
 
                         //TRIANGLE 6 partie gauche haut
-                        bot, left, front,  //bas gauche devant
-                        top, left, front,  //haut gauche devant
                         top, left, back,   //haut gauche derriere
+                        bot, left, back,  //haut gauche devant
+                        bot, left, front,  //bas gauche devant
 
                         //TRIANGLE 7 partie haut devant
                         top, left, front,  //haut gauche devant
-                        top, right, front, //haut droite devant
                         top, right, back,  //haut droite fond
+                        top, right, front, //haut droite devant
 
                         //TRIANGLE 8 partie haut derriere
                         top, left, front,  //haut gauche devant
-                        top, right, front, //haut droite devant
-                        top, right, front, //haut gauche fond
+                        top, right, back, //haut droite devant
+                        top, left, back, //haut gauche fond
                         
                         //TRIANGLE 9 partie bas devant
                         bot, right, front,  //bas droite devant
@@ -91,7 +95,7 @@ function initShaders() {
                         bot, right, back, //bas droite derriere
 
                         //TRIANGLE 10 partie bas derriere
-                        bot, right, front, //bas droite devant
+                        bot, right, back, //bas droite derriere
                         bot, left, front, //bas gauche devant
                         bot, left, back,  //bas gauche derriere
 
@@ -105,38 +109,6 @@ function initShaders() {
                         top, right, front,    //haut droite devant
                         bot, left, front  //bas gauche devant
     ];
-/*
-                        //X    Y   Z
-    mousePositions = [  //TRIANGLE 1 partie devant
-                        -0.5, 0.5, 0,   //haut gauche devant
-                        -0.5, -0.5, 0,  //bas gauche devant
-                        0.5, 0.5, 0,    //haut droite devant
-
-                        //TRIANGLE 2 partie devant
-                        0.5, -0.5, 0,   //bas droite devant
-                        0.5, 0.5, 0,    //haut droite devant
-                        -0.5, -0.5, 0,  //bas gauche devant
-
-                        //TRIANGLE 3 partie droite
-                        0.5, -0.5, 0,   //bas droite devant
-                        0.5, 0.5, 0,    //haut droite devant
-                        0.5, 0.5, -1,   //haut droite derriere
-
-                        //TRIANGLE 4 partie droite
-                        0.5, -0.5, 0,   //bas droite devant
-                        0.5, 0.5, -1,   //haut droite derriere
-                        0.5, -0.5, -1,  //bas droite devant
-
-                        //TRIANGLE 5 partie gauche
-                        -0.5, 0.5, 0,   //haut gauche devant
-                        -0.5, -0.5, 0,  //bas gauche devant
-                        -0.5, 0.5, -1,   //haut gauche derriere
-
-                        //TRIANGLE 6 partie gauche
-                        -0.5, -0.5, 0,  //bas gauche devant
-                        -0.5, 0.5, -1   //haut gauche devant
-    ];
-*/
 color1 = Math.random();
 color2 = Math.random();
 color3 = Math.random();
@@ -242,17 +214,51 @@ color7 = Math.random();
 }
 
 
-
 //Evenement souris
 function initEvents() {
+    document.querySelector("#slider").addEventListener("input", (e) => {
+        console.log("Rotation de : ", (((e.target.value - 50) / 10) - currentPos).toFixed(2));
+        console.log("Nouvelle rotation actuelle : " + ((e.target.value - 50) / 10));
+        // mat4.rotateY(rMatrix, rMatrix, (((e.target.value - 50) / 10) - currentPos).toFixed(2));
+        mat4.rotateY(rMatrix, rMatrix, (((e.target.value - 50) / 10) - currentPos).toFixed(2));
+        currentPos = ((e.target.value - 50) / 10);
+        refreshBuffers();
+    })    
+    document.querySelector("#sliderTest").addEventListener("input", (e) => {
+        currentPos = currentPos + +e.target.value;
+        console.log(currentPos);
+    })
+
     document.addEventListener("keydown", (e) => {
-        console.log(e.keyCode);
+        //console.log(e.keyCode);
         e.preventDefault();
-        mat4.rotateY(rMatrix, rMatrix, 0.1);
+        switch(e.keyCode){
+            case 68: //D
+                mat4.rotateY(rMatrix, rMatrix, 0.1);
+                break;
+            case 83: //S
+                mat4.rotateX(rMatrix, rMatrix, 0.1);
+                break;
+            case 81: //Q
+                mat4.rotateY(rMatrix, rMatrix, -0.1);
+                break;
+            case 65: //A
+                mat4.rotateZ(rMatrix, rMatrix, 0.1);
+                break;
+            case 90: //Z
+                mat4.rotateX(rMatrix, rMatrix, -0.1);
+                break;
+            case 69: //Q
+                mat4.rotateZ(rMatrix, rMatrix, -0.1);
+                break;
+        }
         refreshBuffers();
     })
 }
-
+function rotationY(rotation){
+    mat4.rotateY(rMatrix, rMatrix, (((rotation - 50) / 10) - currentPos).toFixed(2));
+    currentPos = ((rotation - 50) / 10);
+}
 //TODO
 //Fonction initialisant les attributs pour l'affichage (position et taille)
 function initAttributes() {
@@ -282,7 +288,7 @@ function initBuffers() {
 //TODO
 //Mise a jour des buffers : necessaire car les coordonnees des points sont ajoutees a chaque clic
 function refreshBuffers() {
-    console.log(mousePositions);
+    //console.log(mousePositions);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mousePositions), gl.STATIC_DRAW)
     gl.vertexAttribPointer(pos, size, gl.FLOAT, true, 0, 0)
@@ -300,7 +306,7 @@ function refreshBuffers() {
 //TODO
 //Fonction permettant le dessin dans le canvas
 function draw() {
-    console.log("draw")
+    //console.log("draw")
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, mousePositions.length/size);
 }
