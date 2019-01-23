@@ -12,6 +12,9 @@ function loadText(url) {
 
 // variables globales du programme;
 let canvas;
+let canvasH;
+let canvasW;
+
 let gl; //contexte
 let program; //shader program
 let attribPos; //attribute position
@@ -22,22 +25,37 @@ let buffer, pos, size, color, bufferColor, perspective, rotation, translation;
 let pMatrix = mat4.create();
 let tMatrix = mat4.identity(mat4.create());
 let rMatrix = mat4.identity(mat4.create());
-let currentPos = 0.00;
+
+let currentPos = {
+    rotateX : 0.00,
+    rotateY : 0.00,
+    rotateZ : 0.00,
+    translateX : 0.00,
+    translateY : 0.00,
+    translateZ : 0.00,
+};
 
 
 
 function initContext() {
     canvas = document.getElementById('dawin-webgl');
+    canvasW = canvas.clientWidth;
+    canvasH = canvas.clientHeight;
     gl = canvas.getContext('webgl');
     if (!gl) {
         console.log('ERREUR : echec chargement du contexte');
         return;
     }
+    canvas.width = canvas.clientWidth;
+
+    canvas.height = canvas.clientHeight;
+
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.2, 0.2, 0.2, 1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
     gl.cullFace(gl.BACK);
-    mat4.perspective(pMatrix, 75 * Math.PI / 180, 800/800, 0.1, 100.0);
+    mat4.perspective(pMatrix, 75 * Math.PI / 180, canvasW/canvasH, 0.1, 100.0);
 }
 
 //Initialisation des shaders et du program
@@ -216,18 +234,39 @@ color7 = Math.random();
 
 //Evenement souris
 function initEvents() {
-    document.querySelector("#slider").addEventListener("input", (e) => {
-        console.log("Rotation de : ", (((e.target.value - 50) / 10) - currentPos).toFixed(2));
-        console.log("Nouvelle rotation actuelle : " + ((e.target.value - 50) / 10));
-        // mat4.rotateY(rMatrix, rMatrix, (((e.target.value - 50) / 10) - currentPos).toFixed(2));
-        mat4.rotateY(rMatrix, rMatrix, (((e.target.value - 50) / 10) - currentPos).toFixed(2));
-        currentPos = ((e.target.value - 50) / 10);
+    document.querySelector("#rotateX").addEventListener("input", (e) => {/* 
+        console.log("Rotation de : ", (e.target.valueAsNumber - currentPos.rotateX));
+        console.log("Nouvelle rotation actuelle : " + (e.target.valueAsNumber));
+        console.log(typeof +(e.target.valueAsNumber - currentPos.rotateX).toFixed(2)); */
+        mat4.rotateX(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateX).toFixed(2));
+        currentPos.rotateX = e.target.valueAsNumber;
         refreshBuffers();
-    })    
-    document.querySelector("#sliderTest").addEventListener("input", (e) => {
-        currentPos = currentPos + +e.target.value;
-        console.log(currentPos);
-    })
+    });
+    document.querySelector("#rotateY").addEventListener("input", (e) => {
+        mat4.rotateY(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateY).toFixed(2));
+        currentPos.rotateY = e.target.valueAsNumber;
+        refreshBuffers();
+    });
+    document.querySelector("#rotateZ").addEventListener("input", (e) => {
+        mat4.rotateZ(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateZ).toFixed(2));
+        currentPos.rotateZ = e.target.valueAsNumber;
+        refreshBuffers();
+    });
+    document.querySelector("#translateX").addEventListener("input", (e) => {
+        mat4.translate(pMatrix, pMatrix, [0, +(e.target.valueAsNumber - currentPos.translateX).toFixed(2), 0]);
+        currentPos.translateX = e.target.valueAsNumber;
+        refreshBuffers();
+    });
+    document.querySelector("#translateY").addEventListener("input", (e) => {
+        mat4.translate(pMatrix, pMatrix, [+(e.target.valueAsNumber - currentPos.translateY).toFixed(2), 0, 0]);
+        currentPos.translateY = e.target.valueAsNumber;
+        refreshBuffers();
+    });
+    document.querySelector("#translateZ").addEventListener("input", (e) => {
+        mat4.translate(pMatrix, pMatrix, [0, 0, +(e.target.valueAsNumber - currentPos.translateZ).toFixed(2)]);
+        currentPos.translateZ = e.target.valueAsNumber;
+        refreshBuffers();
+    });
 
     document.addEventListener("keydown", (e) => {
         //console.log(e.keyCode);
@@ -307,7 +346,7 @@ function refreshBuffers() {
 //Fonction permettant le dessin dans le canvas
 function draw() {
     //console.log("draw")
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, mousePositions.length/size);
 }
 
