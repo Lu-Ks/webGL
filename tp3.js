@@ -17,14 +17,24 @@ let canvasW;
 
 let gl; //contexte
 let program; //shader program
-let attribPos; //attribute position
-let pointSize = 10.;
-let mousePositions = [ ];
-let colorsArray = []
+let pointsPositions = []; //Position des points sur le canvas
+let colorsArray = []; //Couleur a chaque points du canvas
 let buffer, pos, size, color, bufferColor, perspective, rotation, translation;
-let pMatrix = mat4.create();
-let tMatrix = mat4.identity(mat4.create());
-let rMatrix = mat4.identity(mat4.create());
+let pMatrix = mat4.create(); //matrice perspection
+let sMatrix = mat4.identity(mat4.create()); //matrice de scale
+let tMatrix = mat4.identity(mat4.create()); //matrice de translation
+let rMatrix = mat4.identity(mat4.create()); //matrice de rotation
+
+let rangeRotateX = document.querySelector("#rotateX");
+let rangeRotateY = document.querySelector("#rotateY");
+let rangeRotateZ = document.querySelector("#rotateZ");
+
+let rangeTranslateX = document.querySelector("#translateX");
+let rangeTranslateY = document.querySelector("#translateY");
+let rangeTranslateZ = document.querySelector("#translateZ");
+
+let rangeFOV = document.querySelector("#fov");
+let rangeZoom = document.querySelector("#zoom");
 
 let currentPos = {
     rotateX : 0.00,
@@ -33,9 +43,9 @@ let currentPos = {
     translateX : 0.00,
     translateY : 0.00,
     translateZ : 0.00,
+    fov: 75,
+    scale: 0
 };
-
-
 
 function initContext() {
     canvas = document.getElementById('dawin-webgl');
@@ -55,7 +65,7 @@ function initContext() {
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
     gl.cullFace(gl.BACK);
-    mat4.perspective(pMatrix, 75 * Math.PI / 180, canvasW/canvasH, 0.1, 100.0);
+    mat4.perspective(pMatrix, currentPos.fov * Math.PI / 180, canvasW/canvasH, 0.1, 100.0);
 }
 
 //Initialisation des shaders et du program
@@ -67,7 +77,7 @@ function initShaders() {
     let front = 0.5;
     let back = -0.5;
                        //X    Y   Z
-    mousePositions = [ //TRIANGLE 1 partie arriere haut gauche
+    pointsPositions = [ //TRIANGLE 1 partie arriere haut gauche
                         top, left, back,    //haut gauche derriere
                         bot, left, back,    //bas gauche derriere
                         top, right, back,   //haut droite derriere
@@ -127,13 +137,14 @@ function initShaders() {
                         top, right, front,    //haut droite devant
                         bot, left, front  //bas gauche devant
     ];
-color1 = Math.random();
-color2 = Math.random();
-color3 = Math.random();
-color4 = Math.random();
-color5 = Math.random();
-color6 = Math.random();
-color7 = Math.random();
+   
+    color1 = Math.random();
+    color2 = Math.random();
+    color3 = Math.random();
+    color4 = Math.random();
+    color5 = Math.random();
+    color6 = Math.random();
+    color7 = Math.random();
 
     colorsArray = [
                     //TRIANGLE 1 arriere
@@ -234,7 +245,7 @@ color7 = Math.random();
 
 //Evenement souris
 function initEvents() {
-    document.querySelector("#rotateX").addEventListener("input", (e) => {/* 
+    rangeRotateX.addEventListener("input", (e) => {/* 
         console.log("Rotation de : ", (e.target.valueAsNumber - currentPos.rotateX));
         console.log("Nouvelle rotation actuelle : " + (e.target.valueAsNumber));
         console.log(typeof +(e.target.valueAsNumber - currentPos.rotateX).toFixed(2)); */
@@ -242,32 +253,44 @@ function initEvents() {
         currentPos.rotateX = e.target.valueAsNumber;
         refreshBuffers();
     });
-    document.querySelector("#rotateY").addEventListener("input", (e) => {
+    rangeRotateY.addEventListener("input", (e) => {
         mat4.rotateY(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateY).toFixed(2));
         currentPos.rotateY = e.target.valueAsNumber;
         refreshBuffers();
     });
-    document.querySelector("#rotateZ").addEventListener("input", (e) => {
+    rangeRotateZ.addEventListener("input", (e) => {
         mat4.rotateZ(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateZ).toFixed(2));
         currentPos.rotateZ = e.target.valueAsNumber;
         refreshBuffers();
     });
-    document.querySelector("#translateX").addEventListener("input", (e) => {
-        mat4.translate(pMatrix, pMatrix, [0, +(e.target.valueAsNumber - currentPos.translateX).toFixed(2), 0]);
+    rangeTranslateX.addEventListener("input", (e) => {
+        mat4.translate(tMatrix, tMatrix, [0, +(e.target.valueAsNumber - currentPos.translateX).toFixed(2), 0]);
         currentPos.translateX = e.target.valueAsNumber;
         refreshBuffers();
     });
-    document.querySelector("#translateY").addEventListener("input", (e) => {
-        mat4.translate(pMatrix, pMatrix, [+(e.target.valueAsNumber - currentPos.translateY).toFixed(2), 0, 0]);
+    rangeTranslateY.addEventListener("input", (e) => {
+        mat4.translate(tMatrix, tMatrix, [+(e.target.valueAsNumber - currentPos.translateY).toFixed(2), 0, 0]);
         currentPos.translateY = e.target.valueAsNumber;
         refreshBuffers();
     });
-    document.querySelector("#translateZ").addEventListener("input", (e) => {
-        mat4.translate(pMatrix, pMatrix, [0, 0, +(e.target.valueAsNumber - currentPos.translateZ).toFixed(2)]);
+    rangeTranslateZ.addEventListener("input", (e) => {
+        mat4.translate(tMatrix, tMatrix, [0, 0, +(e.target.valueAsNumber - currentPos.translateZ).toFixed(2)]);
         currentPos.translateZ = e.target.valueAsNumber;
         refreshBuffers();
     });
 
+    rangeFOV.addEventListener("input", (e) => {
+
+        mat4.perspective(pMatrix, e.target.valueAsNumber * Math.PI / 180, canvasW/canvasH, 0.1, 100.0);
+        mat4.translate(pMatrix, pMatrix, [0, 0, -2]);
+        currentPos.fov = e.target.valueAsNumber;
+        refreshBuffers();
+    });
+
+    document.querySelector("#reset").addEventListener('click', () => {
+        console.log(currentPos);
+        resetPosition();
+    })
     document.addEventListener("keydown", (e) => {
         //console.log(e.keyCode);
         e.preventDefault();
@@ -327,9 +350,9 @@ function initBuffers() {
 //TODO
 //Mise a jour des buffers : necessaire car les coordonnees des points sont ajoutees a chaque clic
 function refreshBuffers() {
-    //console.log(mousePositions);
+    //console.log(pointsPositions);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mousePositions), gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointsPositions), gl.STATIC_DRAW)
     gl.vertexAttribPointer(pos, size, gl.FLOAT, true, 0, 0)
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferColor);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorsArray), gl.STATIC_DRAW)
@@ -341,13 +364,36 @@ function refreshBuffers() {
     gl.uniformMatrix4fv(perspective, false, pMatrix);
     draw();
 }
+function resetPosition(){
+    mat4.rotateZ(rMatrix, rMatrix, -currentPos.rotateZ)
+    mat4.rotateY(rMatrix, rMatrix, -currentPos.rotateY)
+    mat4.rotateX(rMatrix, rMatrix, -currentPos.rotateX)
+    mat4.translate(tMatrix, tMatrix, [-currentPos.translateX, -currentPos.translateY, -currentPos.translateZ]);
+    currentPos.rotateX = 0.0;
+    currentPos.rotateY = 0.0;
+    currentPos.rotateZ = 0.0;
+    currentPos.translateX = 0.0;
+    currentPos.translateY = 0.0;
+    currentPos.translateZ = 0.0;
+    updateRange();
+    refreshBuffers();
+}
+
+function updateRange(){
+    rangeRotateX.value = currentPos.rotateX;
+    rangeRotateY.value = currentPos.rotateY;
+    rangeRotateZ.value = currentPos.rotateZ;
+    rangeTranslateX.value = currentPos.translateX;
+    rangeTranslateY.value = currentPos.translateY;
+    rangeTranslateZ.value = currentPos.translateZ;
+}
 
 //TODO
 //Fonction permettant le dessin dans le canvas
 function draw() {
     //console.log("draw")
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, mousePositions.length/size);
+    gl.drawArrays(gl.TRIANGLES, 0, pointsPositions.length/size);
 }
 
 

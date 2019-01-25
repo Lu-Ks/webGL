@@ -48,9 +48,18 @@ html, body {
 canvas {
     width: 100%;
     height: 100vh;
+    padding: 0 !important;
 }
 
 .settings-col {
     height: 100vh;
     overflow-y: scroll;
 }
+
+/* .noUI-connect {
+    background: #4286f4 !important;
+  }
+
+  .range-label{
+    background-color: #4286f4 !important;
+  } */
