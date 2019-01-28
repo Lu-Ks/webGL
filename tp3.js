@@ -1,3 +1,5 @@
+//var iro = require("@jaames/iro");
+
 function loadText(url) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, false);
@@ -9,6 +11,8 @@ function loadText(url) {
         return null;
     }
 }
+
+var colorPicker = new iro.ColorPicker("#color-picker-container");
 
 // variables globales du programme;
 let canvas;
@@ -34,7 +38,7 @@ let rangeTranslateY = document.querySelector("#translateY");
 let rangeTranslateZ = document.querySelector("#translateZ");
 
 let rangeFOV = document.querySelector("#fov");
-let rangeZoom = document.querySelector("#zoom");
+let rangeScale = document.querySelector("#zoom");
 
 let currentPos = {
     rotateX : 0.00,
@@ -44,7 +48,7 @@ let currentPos = {
     translateY : 0.00,
     translateZ : 0.00,
     fov: 75,
-    scale: 0
+    scale: 1.0
 };
 
 function initContext() {
@@ -245,6 +249,13 @@ function initShaders() {
 
 //Evenement souris
 function initEvents() {
+
+    colorPicker.on("color:change", function (color, changes) {
+        // Log the color's hex RGB value to the dev console
+        console.log(color.rgb);
+    });
+
+
     rangeRotateX.addEventListener("input", (e) => {/* 
         console.log("Rotation de : ", (e.target.valueAsNumber - currentPos.rotateX));
         console.log("Nouvelle rotation actuelle : " + (e.target.valueAsNumber));
@@ -276,6 +287,15 @@ function initEvents() {
     rangeTranslateZ.addEventListener("input", (e) => {
         mat4.translate(tMatrix, tMatrix, [0, 0, +(e.target.valueAsNumber - currentPos.translateZ).toFixed(2)]);
         currentPos.translateZ = e.target.valueAsNumber;
+        refreshBuffers();
+    });
+
+    rangeScale.addEventListener("input", (e) => {
+        console.log("Scale de : ", ((1 + (e.target.valueAsNumber-currentPos.scale))));
+        console.log("Nouveau scale actuel : " + (e.target.valueAsNumber));
+        console.log(typeof +(e.target.valueAsNumber - currentPos.scale).toFixed(2));
+        mat4.scale(sMatrix, sMatrix, [1 + (e.target.valueAsNumber - currentPos.scale), 1 + (e.target.valueAsNumber - currentPos.scale), 1 + (e.target.valueAsNumber - currentPos.scale)]);
+        currentPos.scale = e.target.valueAsNumber;
         refreshBuffers();
     });
 
@@ -338,6 +358,7 @@ function initBuffers() {
     perspective = gl.getUniformLocation(program, "perspective");
     translation = gl.getUniformLocation(program, "translation");
     rotation = gl.getUniformLocation(program, "rotation");
+    scale = gl.getUniformLocation(program, "scale");
     size = 3;
 
     gl.enableVertexAttribArray(pos);
@@ -362,6 +383,7 @@ function refreshBuffers() {
     gl.uniformMatrix4fv(translation, false, tMatrix);
     gl.uniformMatrix4fv(rotation, false, rMatrix);
     gl.uniformMatrix4fv(perspective, false, pMatrix);
+    gl.uniformMatrix4fv(scale, false, sMatrix);
     draw();
 }
 function resetPosition(){
@@ -391,7 +413,7 @@ function updateRange(){
 //TODO
 //Fonction permettant le dessin dans le canvas
 function draw() {
-    //console.log("draw")
+    console.log("draw")
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, pointsPositions.length/size);
 }
@@ -403,5 +425,5 @@ function main() {
     initBuffers();
     initAttributes();
     initEvents();
-    draw();
+    //draw();
 }

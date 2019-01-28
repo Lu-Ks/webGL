@@ -51,9 +51,21 @@ canvas {
     padding: 0 !important;
 }
 
-.settings-col {
+.settings {
     height: 100vh;
     overflow-y: scroll;
+}
+
+.part {
+    box-sizing: content-box;
+    border: 1px solid white;
+    background: red;
+    height: 69px;
+}
+
+.choices-container .row {
+    margin-bottom: 0px !important;
+    justify-content: center;
 }
 
 /* .noUI-connect {

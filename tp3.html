@@ -9,7 +9,7 @@
       <canvas id='dawin-webgl' class="col s8">
         Utilisez un navigateur compatible avec WebGL
       </canvas>
-      <div class="setting-col col s4">
+      <div class="settings col s4">
         <h3 class="row center-align">- - Settings - -</h3>
         <a class="waves-effect waves-light btn red lighten-1" id="reset">Reset</a>
         <h5>Rotation</h5>
@@ -66,10 +66,38 @@
             <input type="range" id="fov" min="30" max="120" step="1"/>
           </p>
         </div>
+        <div class="row">
+          <div class="color-container col s8">
+            <div id="color-picker-container"></div>
+          </div>
+          <div class="choices-container col s4">
+            <p>color : <span class="colorValue"></span></p>
+            <div>
+              <div></div>
+              <div>
+                <div class="row">
+                  <div class="part cube-top col s4 offset-s4 center-align valign-wrapper">TOP</div>
+                </div>
+                <div class="row">
+                  <div class="part cube-left col s4 center-align valign-wrapper">LEFT</div>
+                  <div class="part cube-front col s4 center-align valign-wrapper">FRONT</div>
+                  <div class="part cube-right col s4 center-align valign-wrapper">RIGHT</div>
+                </div>
+                <div class="row">
+                  <div class="part cube-bottom col s4 offset-s4 center-align valign-wrapper">DOWN</div>
+                </div>
+                <div class="row">
+                  <div class="part cube-back col s4 offset-s4 center-align valign-wrapper">BOT</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     
     <script src='gl-matrix-min.js'></script>
+    <script src='dist/iro.min.js'></script>
     <script src='tp3.js'></script>
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
