@@ -11,7 +11,6 @@
       </canvas>
       <div class="settings col s4">
         <h3 class="row center-align">- - Settings - -</h3>
-        <a class="waves-effect waves-light btn red lighten-1" id="reset">Reset</a>
         <h5>Rotation</h5>
 
         <div class="row valign-wrapper">
@@ -76,31 +75,32 @@
               <div></div>
               <div>
                 <div class="row">
-                  <div class="part cube-top col s4 offset-s4 center-align valign-wrapper">TOP</div>
+                  <div data-id="1" class="part cube-top col s4 offset-s4 center-align valign-wrapper"><div class="truncate">TOP</div></div>
                 </div>
                 <div class="row">
-                  <div class="part cube-left col s4 center-align valign-wrapper">LEFT</div>
-                  <div class="part cube-front col s4 center-align valign-wrapper">FRONT</div>
-                  <div class="part cube-right col s4 center-align valign-wrapper">RIGHT</div>
+                  <div data-id="2" class="part cube-left col s4 center-align valign-wrapper"><div class="truncate">LEFT</div></div>
+                  <div data-id="3" class="part cube-front col s4 center-align valign-wrapper"><div class="truncate">FRONT</div></div>
+                  <div data-id="4" class="part cube-right col s4 center-align valign-wrapper"><div class="truncate">RIGHT</div></div>
                 </div>
                 <div class="row">
-                  <div class="part cube-bottom col s4 offset-s4 center-align valign-wrapper">DOWN</div>
+                  <div data-id="5" class="part cube-bottom col s4 offset-s4 center-align valign-wrapper"><div class="truncate">DOWN</div></div>
                 </div>
                 <div class="row">
-                  <div class="part cube-back col s4 offset-s4 center-align valign-wrapper">BOT</div>
+                  <div data-id="6" class="part cube-back col s4 offset-s4 center-align valign-wrapper"><div class="truncate">BACK</div></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <a class="waves-effect waves-light btn red lighten-1" id="reset">Reset</a>
       </div>
     </div>
     
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src='gl-matrix-min.js'></script>
     <script src='dist/iro.min.js'></script>
     <script src='tp3.js'></script>
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
           
   </body>
 </html>	

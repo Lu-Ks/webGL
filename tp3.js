@@ -40,6 +40,8 @@ let rangeTranslateZ = document.querySelector("#translateZ");
 let rangeFOV = document.querySelector("#fov");
 let rangeScale = document.querySelector("#zoom");
 
+let parts = document.querySelectorAll(".part");
+
 let currentPos = {
     rotateX : 0.00,
     rotateY : 0.00,
@@ -246,15 +248,56 @@ function initShaders() {
 
 }
 
+/*
+colorsArray.forEach((e,i) => {
+	if(i%24 == 0){
+		console.log(colorsArray[i], colorsArray[i+1], colorsArray[i+2], colorsArray[i+3]);
+	}
+});*/
+function setHeightCube(){
+    parts.forEach((e, i)=> {
+        e.style.height = e.offsetWidth+"px";
+        switch(e.children[0].innerHTML){
+            case "BACK":
+                e.style.background = "rgb(" + colorsArray[0] * 255 + "," + colorsArray[1] * 255 + "," + colorsArray[2] * 255 + ")";
+                break;
+            case "TOP":
+                e.style.background = "rgb(" + colorsArray[24] * 255 + "," + colorsArray[25] * 255 + "," + colorsArray[26] * 255 + ")";
+                break;
+            case "LEFT":
+                e.style.background = "rgb(" + colorsArray[72] * 255 + "," + colorsArray[73] * 255 + "," + colorsArray[74] * 255 + ")";
+                break;
+            case "RIGHT":
+                e.style.background = "rgb(" + colorsArray[96] * 255 + "," + colorsArray[97] * 255 + "," + colorsArray[98] * 255 + ")";
+                break;
+            case "FRONT":
+                e.style.background = "rgb(" + colorsArray[120] * 255 + "," + colorsArray[121] * 255 + "," + colorsArray[122] * 255 + ")";
+                break;
+            case "DOWN":
+                e.style.background = "rgb(" + colorsArray[48] * 255 + "," + colorsArray[49] * 255 + "," + colorsArray[50]*255 + ")";
+                break;
+        }
+    })
+}
+
+function toggleSelected(element) {
+    element.target.classList.toggle("selected");
+}
 
 //Evenement souris
 function initEvents() {
 
+
+    parts.forEach((e) => {
+        e.addEventListener("click", (elem) => {
+            toggleSelected(elem);
+        })
+    })
+
     colorPicker.on("color:change", function (color, changes) {
         // Log the color's hex RGB value to the dev console
-        console.log(color.rgb);
+        refreshColor(color.rgb);
     });
-
 
     rangeRotateX.addEventListener("input", (e) => {/* 
         console.log("Rotation de : ", (e.target.valueAsNumber - currentPos.rotateX));
@@ -291,9 +334,6 @@ function initEvents() {
     });
 
     rangeScale.addEventListener("input", (e) => {
-        console.log("Scale de : ", ((1 + (e.target.valueAsNumber-currentPos.scale))));
-        console.log("Nouveau scale actuel : " + (e.target.valueAsNumber));
-        console.log(typeof +(e.target.valueAsNumber - currentPos.scale).toFixed(2));
         mat4.scale(sMatrix, sMatrix, [1 + (e.target.valueAsNumber - currentPos.scale), 1 + (e.target.valueAsNumber - currentPos.scale), 1 + (e.target.valueAsNumber - currentPos.scale)]);
         currentPos.scale = e.target.valueAsNumber;
         refreshBuffers();
@@ -386,6 +426,19 @@ function refreshBuffers() {
     gl.uniformMatrix4fv(scale, false, sMatrix);
     draw();
 }
+
+function refreshColor(color) {
+
+    for(i = 0; i < 24; i = i+4){
+        colorsArray[120 + i] = color.r / 255;
+        colorsArray[121 + i] = color.g / 255;
+        colorsArray[122 + i] = color.b / 255;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferColor);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorsArray), gl.STATIC_DRAW);
+    draw();
+}
+
 function resetPosition(){
     mat4.rotateZ(rMatrix, rMatrix, -currentPos.rotateZ)
     mat4.rotateY(rMatrix, rMatrix, -currentPos.rotateY)
@@ -425,5 +478,6 @@ function main() {
     initBuffers();
     initAttributes();
     initEvents();
+    setHeightCube();
     //draw();
 }

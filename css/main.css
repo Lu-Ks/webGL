@@ -57,10 +57,20 @@ canvas {
 }
 
 .part {
+    cursor: pointer;
+    user-select: none;
     box-sizing: content-box;
     border: 1px solid white;
-    background: red;
-    height: 69px;
+    font-size: 10px;
+}
+
+.part div {
+    margin: auto;
+    pointer-events: none;
+}
+
+.part.selected {
+    border: 5px solid black;
 }
 
 .choices-container .row {
