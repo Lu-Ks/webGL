@@ -15,9 +15,10 @@ function loadText(url) {
 var colorPicker = new iro.ColorPicker("#color-picker-container");
 
 // variables globales du programme;
-let canvas;
+let canvas = document.getElementById('dawin-webgl');
 let canvasH;
 let canvasW;
+let canvasClick = false;
 
 let gl; //contexte
 let program; //shader program
@@ -54,7 +55,6 @@ let currentPos = {
 };
 
 function initContext() {
-    canvas = document.getElementById('dawin-webgl');
     canvasW = canvas.clientWidth;
     canvasH = canvas.clientHeight;
     gl = canvas.getContext('webgl');
@@ -375,7 +375,27 @@ function initEvents() {
                 break;
         }
         refreshBuffers();
-    })
+    });
+
+    canvas.addEventListener("mousedown", () => {
+        canvasClick = true;
+    });
+    
+    canvas.addEventListener("mouseup", () => {
+        canvasClick = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+        canvasClick = false;
+    });
+    
+    canvas.addEventListener("mousemove", (e) => {
+        if(canvasClick){
+            mat4.rotateX(rMatrix, rMatrix, e.movementY / 100);
+            mat4.rotateY(rMatrix, rMatrix, e.movementX / 100);
+            refreshBuffers();
+        }
+    });
 }
 function rotationY(rotation){
     mat4.rotateY(rMatrix, rMatrix, (((rotation - 50) / 10) - currentPos).toFixed(2));
