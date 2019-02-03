@@ -78,6 +78,9 @@ canvas {
     justify-content: center;
 }
 
+.choices-container>p{
+    margin-bottom : 10px; 
+}
 /* .noUI-connect {
     background: #4286f4 !important;
   }

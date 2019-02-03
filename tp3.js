@@ -42,6 +42,11 @@ let rangeFOV = document.querySelector("#fov");
 let rangeScale = document.querySelector("#zoom");
 
 let parts = document.querySelectorAll(".part");
+let colorValue = document.querySelector(".colorValue");
+let select = [false, false, false, false, false, false];
+let selectPart = false;
+let selectAll = document.querySelector("#selectAll");
+let allPart = false;
 
 let currentPos = {
     rotateX : 0.00,
@@ -254,7 +259,7 @@ colorsArray.forEach((e,i) => {
 		console.log(colorsArray[i], colorsArray[i+1], colorsArray[i+2], colorsArray[i+3]);
 	}
 });*/
-function setHeightCube(){
+function setPartCube(){
     parts.forEach((e, i)=> {
         e.style.height = e.offsetWidth+"px";
         switch(e.children[0].innerHTML){
@@ -280,8 +285,29 @@ function setHeightCube(){
     })
 }
 
-function toggleSelected(element) {
-    element.target.classList.toggle("selected");
+function toggleSelected(elem) {
+    let result = elem.classList.toggle("selected");
+    select[elem.dataset.id] = !select[elem.dataset.id];
+    //console.log(elem);
+    if(result){
+        setColorPicker(elem.style.background);
+        if (select[0] && select[1] && select[2] && select[3] && select[4] && select[5]){
+            allPart = true;
+            selectAll.checked = true;
+        }
+    }else{
+        if (allPart){
+            allPart = false;
+            selectAll.checked = false;
+        }
+    }
+}
+
+function setColorPicker(e){
+    let val = e.slice(0, e.length - 1).split("(")[1].split(",");
+    //update colorpicker
+    selectPart = true;
+    colorPicker.color.rgb = { r : +val[0], g: +val[1], b: +val[2]};
 }
 
 //Evenement souris
@@ -289,14 +315,39 @@ function initEvents() {
 
 
     parts.forEach((e) => {
-        e.addEventListener("click", (elem) => {
-            toggleSelected(elem);
-        })
-    })
+        e.addEventListener("click", (event) => {
+            toggleSelected(event.target);
+        });
+    });
+
+    selectAll.addEventListener("change", (e)=>{
+
+        if (e.target.checked) {
+            allPart = true;
+            parts.forEach((part) => {
+                if(!part.classList.contains("selected")){
+                    toggleSelected(part);
+                }
+            })
+        }else {
+            allPart = false;
+            parts.forEach((part) => {
+                if (part.classList.contains("selected")) {
+                    toggleSelected(part);
+                }
+            });
+        }
+    });
 
     colorPicker.on("color:change", function (color, changes) {
         // Log the color's hex RGB value to the dev console
-        refreshColor(color.rgb);
+
+        colorValue.innerHTML = color.hexString;
+        if(!selectPart){
+            refreshColor(color.rgb);
+        }else{
+            selectPart = false
+        }
     });
 
     rangeRotateX.addEventListener("input", (e) => {/* 
@@ -396,6 +447,7 @@ function initEvents() {
             refreshBuffers();
         }
     });
+
 }
 function rotationY(rotation){
     mat4.rotateY(rMatrix, rMatrix, (((rotation - 50) / 10) - currentPos).toFixed(2));
@@ -448,15 +500,52 @@ function refreshBuffers() {
 }
 
 function refreshColor(color) {
-
-    for(i = 0; i < 24; i = i+4){
-        colorsArray[120 + i] = color.r / 255;
-        colorsArray[121 + i] = color.g / 255;
-        colorsArray[122 + i] = color.b / 255;
+    //back =  0; top = 24; left = 72; right = 96; front = 120; down = 48;
+    if(select[0]){
+        //changer la partie top
+        replaceColor(color, 24, allPart);
     }
+    if(select[1]){
+        //changer la partie left
+        replaceColor(color, 72, allPart);
+    }
+    if(select[2]){
+        //changer la partie front
+        replaceColor(color, 120, allPart);
+    }
+    if(select[3]){
+        //changer la partie right
+        replaceColor(color, 96, allPart);
+    }
+    if(select[4]){
+        //changer la partie down
+        replaceColor(color, 48, allPart);
+    }
+    if(select[5]){
+        //changer la partie back
+        replaceColor(color, 0, allPart);
+    }
+    setPartCube();
+    
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferColor);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorsArray), gl.STATIC_DRAW);
     draw();
+}
+
+function replaceColor(color, index, allPart){
+    let alt = Math.floor(Math.random() * 50);
+    for (i = 0; i < 24; i = i + 4) {
+        if(allPart){
+            colorsArray[index + i] = color.r / (255 + alt);
+            colorsArray[index + 1 + i] = color.g / (255 + alt);
+        }
+        else{
+
+            colorsArray[index + i] = color.r / 255;
+            colorsArray[index + 1 + i] = color.g / 255;
+        }
+        colorsArray[index+2 + i] = color.b / 255;
+    }
 }
 
 function resetPosition(){
@@ -486,7 +575,7 @@ function updateRange(){
 //TODO
 //Fonction permettant le dessin dans le canvas
 function draw() {
-    console.log("draw")
+    //console.log("draw")
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, pointsPositions.length/size);
 }
@@ -498,6 +587,6 @@ function main() {
     initBuffers();
     initAttributes();
     initEvents();
-    setHeightCube();
+    setPartCube();
     //draw();
 }
