@@ -2,7 +2,7 @@
 
 function loadText(url) {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, false);
+    xhr.open("GET", url, false);
     xhr.overrideMimeType("text/plain");
     xhr.send(null);
     if(xhr.status === 200)
@@ -15,7 +15,7 @@ function loadText(url) {
 var colorPicker = new iro.ColorPicker("#color-picker-container");
 
 // variables globales du programme;
-let canvas = document.getElementById('dawin-webgl');
+const canvas = document.getElementById("dawin-webgl");
 let canvasH;
 let canvasW;
 let canvasClick = false;
@@ -62,9 +62,9 @@ let currentPos = {
 function initContext() {
     canvasW = canvas.clientWidth;
     canvasH = canvas.clientHeight;
-    gl = canvas.getContext('webgl');
+    gl = canvas.getContext("webgl");
     if (!gl) {
-        console.log('ERREUR : echec chargement du contexte');
+        console.log("ERREUR : echec chargement du contexte");
         return;
     }
     canvas.width = canvas.clientWidth;
@@ -81,170 +81,168 @@ function initContext() {
 
 //Initialisation des shaders et du program
 function initShaders() {
-    let top = -0.5;
-    let bot = 0.5;
-    let left = -0.5;
-    let right = 0.5;
-    let front = 0.5;
-    let back = -0.5;
-                       //X    Y   Z
-    pointsPositions = [ //TRIANGLE 1 partie arriere haut gauche
-                        top, left, back,    //haut gauche derriere
-                        bot, left, back,    //bas gauche derriere
-                        top, right, back,   //haut droite derriere
+    const TOP = -0.5;
+    const BOT = 0.5;
+    const LEFT = -0.5;
+    const RIGHT = 0.5;
+    const FRONT = 0.5;
+    const BACK = -0.5;
 
-                        //TRIANGLE 2 partie arriere bas droite
-                        bot, right, back,   //bas droite derriere
-                        bot, left, back,    //bas gauche derriere
-                        top, right, back,   //haut droite derriere
+    const OPACITY = 1;
 
-                        //TRIANGLE 3 partie droite haut
-                        bot, right, front,  //bas droite devant
-                        top, right, front,  //haut droite devant
-                        top, right, back,   //haut droite derriere
+    pointsPositions = [ 
+        //X    Y    Z
+        //TRIANGLE 1 partie arriere haut gauche
+        TOP, LEFT, BACK,    //haut gauche derriere
+        BOT, LEFT, BACK,    //bas gauche derriere
+        TOP, RIGHT, BACK,   //haut droite derriere
 
-                        //TRIANGLE 4 partie droite bas
-                        bot, right, front,  //bas droite devant
-                        top, right, back,   //haut droite derriere
-                        bot, right, back,   //bas droite derriere
+        //TRIANGLE 2 partie arriere bas droite
+        BOT, RIGHT, BACK,   //bas droite derriere
+        BOT, LEFT, BACK,    //bas gauche derriere
+        TOP, RIGHT, BACK,   //haut droite derriere
 
-                        //TRIANGLE 5 partie gauche bas
-                        top, left, front,   //haut gauche devant
-                        bot, left, front,  //bas gauche devant
-                        top, left, back,   //haut gauche derriere
+        //TRIANGLE 3 partie droite haut
+        BOT, RIGHT, FRONT,  //bas droite devant
+        TOP, RIGHT, FRONT,  //haut droite devant
+        TOP, RIGHT, BACK,   //haut droite derriere
 
-                        //TRIANGLE 6 partie gauche haut
-                        top, left, back,   //haut gauche derriere
-                        bot, left, back,  //haut gauche devant
-                        bot, left, front,  //bas gauche devant
+        //TRIANGLE 4 partie droite bas
+        BOT, RIGHT, FRONT,  //bas droite devant
+        TOP, RIGHT, BACK,   //haut droite derriere
+        BOT, RIGHT, BACK,   //bas droite derriere
 
-                        //TRIANGLE 7 partie haut devant
-                        top, left, front,  //haut gauche devant
-                        top, right, back,  //haut droite fond
-                        top, right, front, //haut droite devant
+        //TRIANGLE 5 partie gauche bas
+        TOP, LEFT, FRONT,   //haut gauche devant
+        BOT, LEFT, FRONT,  //bas gauche devant
+        TOP, LEFT, BACK,   //haut gauche derriere
 
-                        //TRIANGLE 8 partie haut derriere
-                        top, left, front,  //haut gauche devant
-                        top, right, back, //haut droite devant
-                        top, left, back, //haut gauche fond
-                        
-                        //TRIANGLE 9 partie bas devant
-                        bot, right, front,  //bas droite devant
-                        bot, left, front, //bas gauche devant
-                        bot, right, back, //bas droite derriere
+        //TRIANGLE 6 partie gauche haut
+        TOP, LEFT, BACK,   //haut gauche derriere
+        BOT, LEFT, BACK,  //haut gauche devant
+        BOT, LEFT, FRONT,  //bas gauche devant
 
-                        //TRIANGLE 10 partie bas derriere
-                        bot, right, back, //bas droite derriere
-                        bot, left, front, //bas gauche devant
-                        bot, left, back,  //bas gauche derriere
+        //TRIANGLE 7 partie haut devant
+        TOP, LEFT, FRONT,  //haut gauche devant
+        TOP, RIGHT, BACK,  //haut droite fond
+        TOP, RIGHT, FRONT, //haut droite devant
 
-                        //TRIANGLE 11 partie devant haut gauche
-                        top, left, front,   //haut gauche devant
-                        bot, left, front,  //bas gauche devant
-                        top, right, front,    //haut droite devant
+        //TRIANGLE 8 partie haut derriere
+        TOP, LEFT, FRONT,  //haut gauche devant
+        TOP, RIGHT, BACK, //haut droite devant
+        TOP, LEFT, BACK, //haut gauche fond
+        
+        //TRIANGLE 9 partie bas devant
+        BOT, RIGHT, FRONT,  //bas droite devant
+        BOT, LEFT, FRONT, //bas gauche devant
+        BOT, RIGHT, BACK, //bas droite derriere
 
-                        //TRIANGLE 12 partie devant bas droite
-                        bot, right, front,   //bas droite devant
-                        top, right, front,    //haut droite devant
-                        bot, left, front  //bas gauche devant
+        //TRIANGLE 10 partie bas derriere
+        BOT, RIGHT, BACK, //bas droite derriere
+        BOT, LEFT, FRONT, //bas gauche devant
+        BOT, LEFT, BACK,  //bas gauche derriere
+
+        //TRIANGLE 11 partie devant haut gauche
+        TOP, LEFT, FRONT,   //haut gauche devant
+        BOT, LEFT, FRONT,  //bas gauche devant
+        TOP, RIGHT, FRONT,    //haut droite devant
+
+        //TRIANGLE 12 partie devant bas droite
+        BOT, RIGHT, FRONT,   //bas droite devant
+        TOP, RIGHT, FRONT,    //haut droite devant
+        BOT, LEFT, FRONT  //bas gauche devant
     ];
-   
-    color1 = Math.random();
-    color2 = Math.random();
-    color3 = Math.random();
-    color4 = Math.random();
-    color5 = Math.random();
-    color6 = Math.random();
-    color7 = Math.random();
+
+    colors = Array.from({length: 7}, () => Math.random());
 
     colorsArray = [
-                    //TRIANGLE 1 arriere
-                    color1, color3, color5, 1,
-                    color1, color3, color5, 1,
-                    color1, color3, color5, 1,
+        //TRIANGLE 1 arriere
+        colors[1], colors[3], colors[5], OPACITY,
+        colors[1], colors[3], colors[5], OPACITY,
+        colors[1], colors[3], colors[5], OPACITY,
 
-                    //TRIANGLE 2 arriere 
-                    color1, color3, color5, 1,
-                    color1, color3, color5, 1,
-                    color1, color3, color5, 1,
+        //TRIANGLE 2 arriere 
+        colors[1], colors[3], colors[5], OPACITY,
+        colors[1], colors[3], colors[5], OPACITY,
+        colors[1], colors[3], colors[5], OPACITY,
 
-                    //TRIANGLE 3 droite
-                    color2, color3, color4, 1,
-                    color2, color3, color4, 1,
-                    color2, color3, color4, 1,
+        //TRIANGLE 3 droite
+        colors[2], colors[3], colors[4], OPACITY,
+        colors[2], colors[3], colors[4], OPACITY,
+        colors[2], colors[3], colors[4], OPACITY,
 
-                    //TRIANGLE 4 droite
-                    color2, color3, color4, 1,
-                    color2, color3, color4, 1,
-                    color2, color3, color4, 1,
+        //TRIANGLE 4 droite
+        colors[2], colors[3], colors[4], OPACITY,
+        colors[2], colors[3], colors[4], OPACITY,
+        colors[2], colors[3], colors[4], OPACITY,
 
-                    //TRIANGLE 5 gauche 
-                    color1, color5, color7, 1,
-                    color1, color5, color7, 1,
-                    color1, color5, color7, 1,
+        //TRIANGLE 5 gauche 
+        colors[1], colors[5], colors[0], OPACITY,
+        colors[1], colors[5], colors[0], OPACITY,
+        colors[1], colors[5], colors[0], OPACITY,
 
-                    //TRIANGLE 6 gauche 
-                    color1, color5, color7, 1,
-                    color1, color5, color7, 1,
-                    color1, color5, color7, 1,
-                    
-                    //TRIANGLE 7 haut
-                    color2, color1, color6, 1,
-                    color2, color1, color6, 1,
-                    color2, color1, color6, 1,
+        //TRIANGLE 6 gauche 
+        colors[1], colors[5], colors[0], OPACITY,
+        colors[1], colors[5], colors[0], OPACITY,
+        colors[1], colors[5], colors[0], OPACITY,
+        
+        //TRIANGLE 7 haut
+        colors[2], colors[1], colors[6], OPACITY,
+        colors[2], colors[1], colors[6], OPACITY,
+        colors[2], colors[1], colors[6], OPACITY,
 
-                    //TRIANGLE 8 haut
-                    color2, color1, color6, 1,
-                    color2, color1, color6, 1,
-                    color2, color1, color6, 1,
+        //TRIANGLE 8 haut
+        colors[2], colors[1], colors[6], OPACITY,
+        colors[2], colors[1], colors[6], OPACITY,
+        colors[2], colors[1], colors[6], OPACITY,
 
-                    //TRIANGLE 9 bas
-                    color3, color6, color2, 1,
-                    color3, color6, color2, 1,
-                    color3, color6, color2, 1,
+        //TRIANGLE 9 bas
+        colors[3], colors[6], colors[2], OPACITY,
+        colors[3], colors[6], colors[2], OPACITY,
+        colors[3], colors[6], colors[2], OPACITY,
 
-                    //TRIANGLE 10 bas
-                    color3, color6, color2, 1,
-                    color3, color6, color2, 1,
-                    color3, color6, color2, 1,
+        //TRIANGLE 10 bas
+        colors[3], colors[6], colors[2], OPACITY,
+        colors[3], colors[6], colors[2], OPACITY,
+        colors[3], colors[6], colors[2], OPACITY,
 
-                    //TRIANGLE 11 devant
-                    color4, color1, color7, 1,
-                    color4, color1, color7, 1,
-                    color4, color1, color7, 1,
+        //TRIANGLE 11 devant
+        colors[4], colors[1], colors[0], OPACITY,
+        colors[4], colors[1], colors[0], OPACITY,
+        colors[4], colors[1], colors[0], OPACITY,
 
-                    //TRIANGLE 12 devant
-                    color4, color1, color7, 1,
-                    color4, color1, color7, 1,
-                    color4, color1, color7, 1
+        //TRIANGLE 12 devant
+        colors[4], colors[1], colors[0], OPACITY,
+        colors[4], colors[1], colors[0], OPACITY,
+        colors[4], colors[1], colors[0], OPACITY,
     ]
 
 
-    var fragmentSource = loadText('fragment.glsl');
-    var vertexSource = loadText('vertex.glsl');
+    const FRAGMENT_SOURCE = loadText("fragment.glsl");
+    const VERTEX_SOURCE = loadText("vertex.glsl");
 
-    var fragment = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragment, fragmentSource);
-    gl.compileShader(fragment);
+    const FRAGMENT = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(FRAGMENT, FRAGMENT_SOURCE);
+    gl.compileShader(FRAGMENT);
 
-    var vertex = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertex, vertexSource);
-    gl.compileShader(vertex);
+    const VERTEX = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(VERTEX, VERTEX_SOURCE);
+    gl.compileShader(VERTEX);
 
-    gl.getShaderParameter(fragment, gl.COMPILE_STATUS);
-    gl.getShaderParameter(vertex, gl.COMPILE_STATUS);
+    gl.getShaderParameter(FRAGMENT, gl.COMPILE_STATUS);
+    gl.getShaderParameter(VERTEX, gl.COMPILE_STATUS);
 
-    if (!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
-        console.log(gl.getShaderInfoLog(fragment));
+    if (!gl.getShaderParameter(FRAGMENT, gl.COMPILE_STATUS)) {
+        console.log(gl.getShaderInfoLog(FRAGMENT));
     }
 
-    if (!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
-        console.log(gl.getShaderInfoLog(vertex));
+    if (!gl.getShaderParameter(VERTEX, gl.COMPILE_STATUS)) {
+        console.log(gl.getShaderInfoLog(VERTEX));
     }
 
     program = gl.createProgram();
-    gl.attachShader(program, fragment);
-    gl.attachShader(program, vertex);
+    gl.attachShader(program, FRAGMENT);
+    gl.attachShader(program, VERTEX);
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         console.log("Could not initialise shaders");
@@ -253,12 +251,6 @@ function initShaders() {
 
 }
 
-/*
-colorsArray.forEach((e,i) => {
-	if(i%24 == 0){
-		console.log(colorsArray[i], colorsArray[i+1], colorsArray[i+2], colorsArray[i+3]);
-	}
-});*/
 function setPartCube(){
     parts.forEach((e, i)=> {
         e.style.height = e.offsetWidth+"px";
@@ -286,17 +278,16 @@ function setPartCube(){
 }
 
 function toggleSelected(elem) {
-    let result = elem.classList.toggle("selected");
     select[elem.dataset.id] = !select[elem.dataset.id];
-    //console.log(elem);
-    if(result){
+
+    if (elem.classList.toggle("selected")){
         setColorPicker(elem.style.background);
         if (select[0] && select[1] && select[2] && select[3] && select[4] && select[5]){
             allPart = true;
             selectAll.checked = true;
         }
-    }else{
-        if (allPart){
+    } else {
+        if (allPart) {
             allPart = false;
             selectAll.checked = false;
         }
@@ -312,8 +303,6 @@ function setColorPicker(e){
 
 //Evenement souris
 function initEvents() {
-
-
     parts.forEach((e) => {
         e.addEventListener("click", (event) => {
             toggleSelected(event.target);
@@ -340,8 +329,6 @@ function initEvents() {
     });
 
     colorPicker.on("color:change", function (color, changes) {
-        // Log the color's hex RGB value to the dev console
-
         colorValue.innerHTML = color.hexString;
         if(!selectPart){
             refreshColor(color.rgb);
@@ -350,34 +337,36 @@ function initEvents() {
         }
     });
 
-    rangeRotateX.addEventListener("input", (e) => {/* 
-        console.log("Rotation de : ", (e.target.valueAsNumber - currentPos.rotateX));
-        console.log("Nouvelle rotation actuelle : " + (e.target.valueAsNumber));
-        console.log(typeof +(e.target.valueAsNumber - currentPos.rotateX).toFixed(2)); */
+    rangeRotateX.addEventListener("input", (e) => {
         mat4.rotateX(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateX).toFixed(2));
         currentPos.rotateX = e.target.valueAsNumber;
         refreshBuffers();
     });
+    
     rangeRotateY.addEventListener("input", (e) => {
         mat4.rotateY(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateY).toFixed(2));
         currentPos.rotateY = e.target.valueAsNumber;
         refreshBuffers();
     });
+
     rangeRotateZ.addEventListener("input", (e) => {
         mat4.rotateZ(rMatrix, rMatrix, +(e.target.valueAsNumber - currentPos.rotateZ).toFixed(2));
         currentPos.rotateZ = e.target.valueAsNumber;
         refreshBuffers();
     });
+
     rangeTranslateX.addEventListener("input", (e) => {
         mat4.translate(tMatrix, tMatrix, [0, +(e.target.valueAsNumber - currentPos.translateX).toFixed(2), 0]);
         currentPos.translateX = e.target.valueAsNumber;
         refreshBuffers();
     });
+
     rangeTranslateY.addEventListener("input", (e) => {
         mat4.translate(tMatrix, tMatrix, [+(e.target.valueAsNumber - currentPos.translateY).toFixed(2), 0, 0]);
         currentPos.translateY = e.target.valueAsNumber;
         refreshBuffers();
     });
+
     rangeTranslateZ.addEventListener("input", (e) => {
         mat4.translate(tMatrix, tMatrix, [0, 0, +(e.target.valueAsNumber - currentPos.translateZ).toFixed(2)]);
         currentPos.translateZ = e.target.valueAsNumber;
@@ -398,30 +387,29 @@ function initEvents() {
         refreshBuffers();
     });
 
-    document.querySelector("#reset").addEventListener('click', () => {
-        console.log(currentPos);
+    document.querySelector("#reset").addEventListener("click", () => {
         resetPosition();
     })
+
     document.addEventListener("keydown", (e) => {
-        //console.log(e.keyCode);
         e.preventDefault();
-        switch(e.keyCode){
-            case 68: //D
+        switch(e.code){
+            case "KeyD": //D
                 mat4.rotateY(rMatrix, rMatrix, 0.1);
                 break;
-            case 83: //S
+            case "KeyS": //S
                 mat4.rotateX(rMatrix, rMatrix, 0.1);
                 break;
-            case 81: //Q
+            case "KeyA": //Q
                 mat4.rotateY(rMatrix, rMatrix, -0.1);
                 break;
-            case 65: //A
+            case "KeyQ": //A
                 mat4.rotateZ(rMatrix, rMatrix, 0.1);
                 break;
-            case 90: //Z
+            case "KeyZ": //Z
                 mat4.rotateX(rMatrix, rMatrix, -0.1);
                 break;
-            case 69: //Q
+            case "KeyE": //Q
                 mat4.rotateZ(rMatrix, rMatrix, -0.1);
                 break;
         }
@@ -453,14 +441,7 @@ function rotationY(rotation){
     mat4.rotateY(rMatrix, rMatrix, (((rotation - 50) / 10) - currentPos).toFixed(2));
     currentPos = ((rotation - 50) / 10);
 }
-//TODO
-//Fonction initialisant les attributs pour l'affichage (position et taille)
-function initAttributes() {
-    
-}
 
-
-//TODO
 //Initialisation des buffers
 function initBuffers() {
     buffer = gl.createBuffer();
@@ -480,18 +461,13 @@ function initBuffers() {
     refreshBuffers()
 }
 
-//TODO
-//Mise a jour des buffers : necessaire car les coordonnees des points sont ajoutees a chaque clic
 function refreshBuffers() {
-    //console.log(pointsPositions);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointsPositions), gl.STATIC_DRAW)
     gl.vertexAttribPointer(pos, size, gl.FLOAT, true, 0, 0)
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferColor);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorsArray), gl.STATIC_DRAW)
     gl.vertexAttribPointer(color, 4, gl.FLOAT, true, 0, 0);
-    //mat4.translate(pMatrix, pMatrix, [0, 0, -2]);
-    //mat4.rotateZ(rMatrix, rMatrix, 2);
     gl.uniformMatrix4fv(translation, false, tMatrix);
     gl.uniformMatrix4fv(rotation, false, rMatrix);
     gl.uniformMatrix4fv(perspective, false, pMatrix);
@@ -535,12 +511,10 @@ function refreshColor(color) {
 function replaceColor(color, index, allPart){
     let alt = Math.floor(Math.random() * 50);
     for (i = 0; i < 24; i = i + 4) {
-        if(allPart){
+        if (allPart) {
             colorsArray[index + i] = color.r / (255 + alt);
             colorsArray[index + 1 + i] = color.g / (255 + alt);
-        }
-        else{
-
+        } else {
             colorsArray[index + i] = color.r / 255;
             colorsArray[index + 1 + i] = color.g / 255;
         }
@@ -572,10 +546,8 @@ function updateRange(){
     rangeTranslateZ.value = currentPos.translateZ;
 }
 
-//TODO
 //Fonction permettant le dessin dans le canvas
 function draw() {
-    //console.log("draw")
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, pointsPositions.length/size);
 }
@@ -585,8 +557,6 @@ function main() {
     initContext();
     initShaders();
     initBuffers();
-    initAttributes();
     initEvents();
     setPartCube();
-    //draw();
 }
